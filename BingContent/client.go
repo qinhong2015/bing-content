@@ -1,4 +1,4 @@
-package bingads
+package bingcontent
 
 import (
 	"bytes"
@@ -23,16 +23,6 @@ type AuthHeader struct {
 	Password            string
 }
 
-type Session struct {
-	AccountId      string
-	CustomerId     string
-	DeveloperToken string
-	Username       string
-	Password       string
-	HTTPClient     HttpClient
-	TokenSource    oauth2.TokenSource
-}
-
 type RequestHeader struct {
 	AuthenticationToken string
 	CustomerAccountId   string
@@ -47,12 +37,9 @@ type HttpClient interface {
 }
 
 var debug = os.Getenv("BING_SDK_DEBUG")
+var baseUrl = "https://content.api.bingads.microsoft.com/shopping/v9.1"
 
-func (b *Session) SendRequest(body interface{}, endpoint string, soapAction string) ([]byte, error) {
-	return b.sendRequest(body, endpoint, soapAction)
-}
-
-func (b *Session) sendRequest(body interface{}, endpoint string, soapAction string) ([]byte, error) {
+func (b *Session) SendRequest(body interface{}, endpoint string) ([]byte, error) {
 	header := RequestHeader{
 		CustomerAccountId: b.AccountId,
 		CustomerId:        b.CustomerId,
@@ -143,23 +130,4 @@ func (b *Session) sendRequest(body interface{}, endpoint string, soapAction stri
 	return res.Body.OperationResponse, err
 }
 
-type SessionConfig struct {
-	OAuth2Config   *oauth2.Config
-	OAuth2Token    *oauth2.Token
-	AccountId      string
-	CustomerId     string
-	DeveloperToken string
-	HTTPClient     HttpClient
-}
 
-func NewSession(config SessionConfig) *Session {
-	tokenSource := config.OAuth2Config.TokenSource(context.TODO(), config.OAuth2Token)
-
-	return &Session{
-		AccountId:      config.AccountId,
-		CustomerId:     config.CustomerId,
-		DeveloperToken: config.DeveloperToken,
-		HTTPClient:     config.HTTPClient,
-		TokenSource:    tokenSource,
-	}
-}
