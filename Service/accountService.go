@@ -5,7 +5,7 @@ import (
 )
 
 type accountService struct {
-	account accountModel
+	Account accountModel
 }
 
 var accountInstance *accountService
@@ -14,11 +14,10 @@ func GetAccountService() *accountService {
 	if accountInstance == nil {
 		accountInstance = new(accountService)
 	}
-	//db.GetPdo()
 	return accountInstance
 }
 
-func (this *accountService) SetAccount(pdo *sql.DB, accountId string, config map[string]interface{}) {
+func (a *accountService) SetAccount(pdo *sql.DB, accountId string, config map[string]interface{}) {
 	rows, err := pdo.Query("SELECT `a`.`name`, `a`.`account_id`, `a`.`source`, `a`.`mysql_host`, `a`.`timezone`, `a`.`source`, CASE WHEN ap.permissions LIKE '%\"product_modify_advance_modifier\": true%' THEN 1 ELSE 0 END AS `advance_modifier_enabled`, CASE WHEN ap.permissions LIKE '%\"product_modify_promotion_id\": true%' THEN 1 ELSE 0 END AS `modify_promotion_id_enabled`, CASE WHEN ap.permissions LIKE '%\"product_modify_google_express\": true%' THEN 1 ELSE 0 END AS `product_modify_google_express_enabled` FROM `accounts` AS `a` INNER JOIN `account_permissions` AS `ap` ON `ap`.`account_id` = `a`.`account_id` WHERE `a`.`account_id` = ?;", accountId)
 	if err != nil {
 		panic(err.Error())
@@ -32,22 +31,22 @@ func (this *accountService) SetAccount(pdo *sql.DB, accountId string, config map
 	}
 
 	err = rows.Scan(
-		&account.accountName,
-		&account.accountId,
-		&account.accountSource,
-		&account.mysqlHost,
-		&account.timezone,
-		&account.accountSource,
-		&account.advanceModifierEnabled,
-		&account.modifyGoogleExpressEnabled,
-		&account.modifyPromotionIdEnabled,
+		&account.AccountName,
+		&account.AccountId,
+		&account.AccountSource,
+		&account.MysqlHost,
+		&account.Timezone,
+		&account.AccountSource,
+		&account.AdvanceModifierEnabled,
+		&account.ModifyGoogleExpressEnabled,
+		&account.ModifyPromotionIdEnabled,
 	)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
-	account.config = config
+	account.Config = config
 	account.LoadSettings()
-	this.account = account
+	a.Account = account
 }

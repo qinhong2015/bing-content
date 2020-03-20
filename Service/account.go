@@ -8,9 +8,9 @@ import (
 
 type accountModel struct {
 	accountPdo *sql.DB
-	accountName, accountId, accountSource, mysqlHost, timezone string
-	advanceModifierEnabled, modifyPromotionIdEnabled, modifyGoogleExpressEnabled bool
-	config map[string]interface{}
+	AccountName, AccountId, AccountSource, MysqlHost, Timezone string
+	AdvanceModifierEnabled, ModifyPromotionIdEnabled, ModifyGoogleExpressEnabled bool
+	Config map[string]interface{}
 	settings map[string]interface{}
 }
 
@@ -19,17 +19,17 @@ type settingModel struct {
 	value interface{}
 }
 
-func (this *accountModel) GetAccountPdo() *sql.DB{
-	if this.accountPdo == nil {
-		host := this.mysqlHost
-		dbs := this.config["dbs"].(map[string]interface{})[host]
-		this.accountPdo = db.CreateInstance(dbs, this.accountId)
+func (a *accountModel) GetAccountPdo() *sql.DB{
+	if a.accountPdo == nil {
+		host := a.MysqlHost
+		dbs := a.Config["dbs"].(map[string]interface{})[host]
+		a.accountPdo = db.CreateInstance(dbs, a.AccountId)
 	}
-	return this.accountPdo
+	return a.accountPdo
 }
 
-func (this *accountModel) LoadSettings() {
-	rows, err := this.GetAccountPdo().Query("select `id`, `value` from `settings`")
+func (a *accountModel) LoadSettings() {
+	rows, err := a.GetAccountPdo().Query("select `id`, `value` from `settings`")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -47,9 +47,12 @@ func (this *accountModel) LoadSettings() {
 
 		settingsMap[setting.id] = setting.value
 	}
-	this.settings = settingsMap
+	a.settings = settingsMap
 }
 
-func (this *accountModel) getSettings(name string) interface{} {
-	return this.settings[name];
+func (a *accountModel) GetSettings(name string) interface{} {
+	if val, ok := a.settings[name]; ok {
+		return val
+	}
+	return nil;
 }
